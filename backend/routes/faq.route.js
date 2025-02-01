@@ -1,22 +1,29 @@
 import express from "express";
 import Faq from "../models/faq.model.js";
-
+import translateText from "../utils/translate.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const faq = req.body;
-  if (!faq.question || !faq.answer) {
+  const { question, answer } = req.body;
+  if (!question || !answer) {
     return res
       .status(400)
       .json({ success: false, message: "Please provide all fields" });
   }
-  const newFaq = new Faq(faq);
   try {
+    const languages = ["hi", "fr", "es"];
+    const translations = {};
+    for (const lang of languages) {
+      translations[lang] = {
+        question: await translateText(question, lang),
+        answer: await translateText(answer, lang),
+      };
+    }
+    const newFaq = new Faq({ question, answer, translations });
     await newFaq.save();
-    res.status(200).json({ success: true, data: newFaq });
+    return res.status(200).json({ success: true, data: newFaq });
   } catch (error) {
-    console.log("Error creating faq", error.message);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 });
 router.delete("/:id", async (req, res) => {

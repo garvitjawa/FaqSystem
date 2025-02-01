@@ -5,12 +5,11 @@ const faqSchema = new mongoose.Schema(
     question: { type: String, required: true },
     answer: { type: String, required: true },
     translations: {
-      question_hi: { type: String },
-      question_fr: { type: String },
-      question_en: { type: String },
-      answer_hi: { type: String },
-      answer_fr: { type: String },
-      answer_en: { type: String },
+      type: Map,
+      of: {
+        question: String,
+        answer: String,
+      },
     },
   },
   { timestamps: true }
